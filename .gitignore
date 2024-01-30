@@ -14,5 +14,5 @@ node_modules
 .idea
 .vscode
 
-.run.sh
-.stop.sh
+run.sh
+stop.sh
