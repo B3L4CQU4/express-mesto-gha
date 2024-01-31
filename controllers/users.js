@@ -1,12 +1,18 @@
 const User = require('../models/users');
 
+const OK_CODE = 200;
+const CREATED_CODE = 201;
+const INVALID_DATA_CODE = 400;
+const NOT_FOUND_CODE = 404;
+const DEFAULT_ERROR_CODE = 500;
+
 // GET /users
 const getUsers = async (req, res) => {
   try {
     const users = await User.find();
-    res.status(200).json(users);
+    res.status(OK_CODE).json(users);
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(DEFAULT_ERROR_CODE).json({ message: 'Internal Server Error' });
   }
 };
 
@@ -18,15 +24,15 @@ const getUserById = async (req, res) => {
     const user = await User.findById({ _id: userId });
 
     if (!user) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(NOT_FOUND_CODE).json({ message: 'User not found' });
     } else {
-      res.status(200).json(user);
+      res.status(OK_CODE).json(user);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(400).json({ message: 'Invalid user ID format' });
+      res.status(INVALID_DATA_CODE).json({ message: 'Invalid user ID format' });
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
     }
   }
 };
@@ -37,9 +43,9 @@ const createUser = async (req, res) => {
 
   try {
     const newUser = await User.create({ name, about, avatar });
-    res.status(201).json(newUser);
+    res.status(CREATED_CODE).json(newUser);
   } catch (error) {
-    res.status(400).json({ message: 'Invalid input' });
+    res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
   }
 };
 
@@ -56,16 +62,16 @@ const updateProfile = async (req, res) => {
     );
 
     if (!updatedUser) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(NOT_FOUND_CODE).json({ error: 'User not found' });
     } else {
-      res.status(200).json(updatedUser);
+      res.status(OK_CODE).json(updatedUser);
     }
   } catch (error) {
     if (error.name === 'ValidationError') {
       // Если валидация не прошла, возвращаем ошибку с сообщением о неверных данных
-      res.status(400).json({ message: 'Invalid data' });
+      res.status(INVALID_DATA_CODE).json({ message: 'Invalid data' });
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
     }
   }
 };
@@ -83,16 +89,16 @@ const updateAvatar = async (req, res) => {
     );
 
     if (!updatedUser) {
-      res.status(404).json({ message: 'User not found' });
+      res.status(NOT_FOUND_CODE).json({ message: 'User not found' });
     } else {
-      res.status(200).json(updatedUser);
+      res.status(OK_CODE).json(updatedUser);
     }
   } catch (error) {
     if (error.name === 'ValidationError') {
       // Если валидация не прошла, возвращаем ошибку с сообщением о неверных данных
-      res.status(400).json({ message: 'Invalid data' });
+      res.status(INVALID_DATA_CODE).json({ message: 'Invalid data' });
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
     }
   }
 };

@@ -1,13 +1,19 @@
 // controllers/cards.js
 const Card = require('../models/cards');
 
+const OK_CODE = 200;
+const CREATED_CODE = 201;
+const INVALID_DATA_CODE = 400;
+const NOT_FOUND_CODE = 404;
+const DEFAULT_ERROR_CODE = 500;
+
 // GET /cards
 const getCards = async (req, res) => {
   try {
     const cards = await Card.find();
-    res.status(200).json(cards);
+    res.status(OK_CODE).json(cards);
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
   }
 };
 
@@ -18,9 +24,9 @@ const createCard = async (req, res) => {
   try {
     const owner = req.user._id;
     const newCard = await Card.create({ name, link, owner });
-    res.status(201).json(newCard);
+    res.status(CREATED_CODE).json(newCard);
   } catch (error) {
-    res.status(400).json({ message: 'Invalid input' });
+    res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
   }
 };
 
@@ -32,15 +38,15 @@ const deleteCardById = async (req, res) => {
     const deletedCard = await Card.findByIdAndDelete({ _id: cardId });
 
     if (!deletedCard) {
-      res.status(404).json({ message: 'Card not found' });
+      res.status(NOT_FOUND_CODE).json({ message: 'Card not found' });
     } else {
-      res.status(200).json(deletedCard);
+      res.status(OK_CODE).json(deletedCard);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(400).json({ message: 'Invalid input' });
+      res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
     }
   }
 };
@@ -58,15 +64,15 @@ const likeCard = async (req, res) => {
     );
 
     if (!updatedCard) {
-      res.status(404).json({ message: 'Card not found' });
+      res.status(NOT_FOUND_CODE).json({ message: 'Card not found' });
     } else {
-      res.status(200).json(updatedCard);
+      res.status(OK_CODE).json(updatedCard);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(400).json({ message: 'Invalid input' });
+      res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
     }
   }
 };
@@ -84,15 +90,15 @@ const dislikeCard = async (req, res) => {
     );
 
     if (!updatedCard) {
-      res.status(404).json({ message: 'Card not found' });
+      res.status(NOT_FOUND_CODE).json({ message: 'Card not found' });
     } else {
-      res.status(200).json(updatedCard);
+      res.status(OK_CODE).json(updatedCard);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(400).json({ message: 'Invalid input' });
+      res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
     } else {
-      res.status(500).json({ message: 'Internal Server Error' });
+      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
     }
   }
 };
