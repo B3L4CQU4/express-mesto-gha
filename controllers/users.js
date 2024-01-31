@@ -6,7 +6,7 @@ const getUsers = async (req, res) => {
     const users = await User.find();
     res.status(200).json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
@@ -18,15 +18,15 @@ const getUserById = async (req, res) => {
     const user = await User.findById({ _id: userId });
 
     if (!user) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
     } else {
       res.status(200).json(user);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(400).json({ error: 'Invalid user ID format' });
+      res.status(400).json({ message: 'Invalid user ID format' });
     } else {
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ message: 'Internal Server Error' });
     }
   }
 };
@@ -39,7 +39,7 @@ const createUser = async (req, res) => {
     const newUser = await User.create({ name, about, avatar });
     res.status(201).json(newUser);
   } catch (error) {
-    res.status(400).json({ error: 'Invalid input' });
+    res.status(400).json({ message: 'Invalid input' });
   }
 };
 
@@ -61,7 +61,7 @@ const updateProfile = async (req, res) => {
       res.status(200).json(updatedUser);
     }
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
@@ -78,12 +78,12 @@ const updateAvatar = async (req, res) => {
     );
 
     if (!updatedUser) {
-      res.status(404).json({ error: 'User not found' });
+      res.status(404).json({ message: 'User not found' });
     } else {
       res.status(200).json(updatedUser);
     }
   } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 };
 
