@@ -20,6 +20,10 @@ app.use((req, res, next) => {
 app.use(userRouter);
 app.use(cardRouter);
 
+app.all('*', (req, res) => {
+  res.status(404).json({ massage: 'Not found' });
+});
+
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.listen(PORT, () => {

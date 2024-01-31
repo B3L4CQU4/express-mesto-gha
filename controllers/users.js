@@ -52,7 +52,7 @@ const updateProfile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { name, about },
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     if (!updatedUser) {
@@ -61,7 +61,12 @@ const updateProfile = async (req, res) => {
       res.status(200).json(updatedUser);
     }
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    if (error.name === 'ValidationError') {
+      // Если валидация не прошла, возвращаем ошибку с сообщением о неверных данных
+      res.status(400).json({ massage: 'Invalid data' });
+    } else {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
   }
 };
 
@@ -74,7 +79,7 @@ const updateAvatar = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { avatar },
-      { new: true },
+      { new: true, runValidators: true },
     );
 
     if (!updatedUser) {
@@ -83,7 +88,12 @@ const updateAvatar = async (req, res) => {
       res.status(200).json(updatedUser);
     }
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    if (error.name === 'ValidationError') {
+      // Если валидация не прошла, возвращаем ошибку с сообщением о неверных данных
+      res.status(400).json({ massage: 'Invalid data' });
+    } else {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
   }
 };
 
