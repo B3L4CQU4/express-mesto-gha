@@ -21,7 +21,7 @@ app.use(userRouter);
 app.use(cardRouter);
 
 app.all('*', (req, res) => {
-  res.status(404).json({ massage: 'Not found' });
+  res.status(404).json({ message: 'Not found' });
 });
 
 mongoose.connect('mongodb://localhost:27017/mestodb');

@@ -63,7 +63,7 @@ const updateProfile = async (req, res) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       // Если валидация не прошла, возвращаем ошибку с сообщением о неверных данных
-      res.status(400).json({ massage: 'Invalid data' });
+      res.status(400).json({ message: 'Invalid data' });
     } else {
       res.status(500).json({ message: 'Internal Server Error' });
     }
@@ -90,7 +90,7 @@ const updateAvatar = async (req, res) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       // Если валидация не прошла, возвращаем ошибку с сообщением о неверных данных
-      res.status(400).json({ massage: 'Invalid data' });
+      res.status(400).json({ message: 'Invalid data' });
     } else {
       res.status(500).json({ message: 'Internal Server Error' });
     }

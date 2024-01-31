@@ -37,7 +37,11 @@ const deleteCardById = async (req, res) => {
       res.status(200).json(deletedCard);
     }
   } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+    if (error.name === 'CastError') {
+      res.status(400).json({ message: 'Invalid input' });
+    } else {
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
   }
 };
 
