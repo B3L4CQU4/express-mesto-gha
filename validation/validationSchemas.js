@@ -28,7 +28,7 @@ const cardIdSchema = Joi.string().length(24).hex();
 
 const createCardSchema = Joi.object({
   name: Joi.string().min(2).max(30).required(),
-  link: Joi.string().uri().required(),
+  link: Joi.string().uri({ allowRelative: false }).pattern(/^[a-zA-Z0-9-_:/?#&=.,;+]*$/).required(),
 });
 
 module.exports = {
