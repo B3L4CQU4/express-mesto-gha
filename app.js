@@ -1,12 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
+const { errors } = require('celebrate');
+
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const authMiddleware = require('./middlewares/auth');
 const handleErrors = require('./middlewares/handleErrors');
 const handleJsonParseError = require('./middlewares/handleJsonParseError');
+const NotFound = require('./errors/notFound');
 
 const { PORT = 3000 } = process.env;
 
@@ -14,6 +17,13 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+
+mongoose.connect(
+  'mongodb://localhost:27017/mestodb',
+  {
+    autoIndex: true,
+  },
+);
 
 app.post('/signin', login);
 app.post('/signup', createUser);
@@ -28,24 +38,19 @@ app.use((req, res, next) => {
 
 app.use(userRouter);
 app.use(cardRouter);
-app.use(handleJsonParseError);
 
-app.all('*', (req, res) => {
-  const error = { message: 'Not Found', statusCode: 404 };
-  handleErrors(error, req, res);
+app.use(errors());
+
+app.all('*', (req, res, next) => {
+  next(new NotFound('Not Found'));
 });
 
-mongoose.connect('mongodb://localhost:27017/mestodb');
+app.use((error, req, res, next) => {
+  handleErrors(error, req, res, next);
+  next();
+});
 
-mongoose.connect(
-  'mongodb://localhost:27017/mestodb',
-  {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    autoIndex: true,
-  },
-);
+app.use(handleJsonParseError);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

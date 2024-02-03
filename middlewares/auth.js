@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const handleErrors = require('./handleErrors');
+const AuthError = require('../errors/authError');
 
 const { SECRET_KEY } = process.env;
 
@@ -7,8 +7,7 @@ const authMiddleware = (req, res, next) => {
   const token = req.cookies.jwt;
 
   if (!token) {
-    const error = { message: 'Unauthorized: Token missing', statusCode: 401 };
-    handleErrors(error, req, res);
+    throw new AuthError('Unauthorized: Token missing');
   } else {
     try {
       const payload = jwt.verify(token, SECRET_KEY);
@@ -17,7 +16,7 @@ const authMiddleware = (req, res, next) => {
       // Вызвать следующий обработчик
       next();
     } catch (error) {
-      handleErrors(error, req, res);
+      next(error);
     }
   }
 };

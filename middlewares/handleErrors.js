@@ -1,11 +1,6 @@
-const handleErrors = (error, req, res) => {
-  if (error.isJoi) {
-    // Ошибка валидации Joi
-    const statusCode = 400;
-    const { message } = error;
-    res.status(statusCode).json({ message });
-  } else if (error.code === 11000) {
-    const statusCode = 409;// Обработка ошибки бд
+const handleErrors = (error, req, res, next) => {
+  if (error.code === 11000) {
+    const statusCode = 409; // Обработка ошибки бд
     const { message } = error;
     res.status(statusCode).json({ message });
   } else {
@@ -14,6 +9,8 @@ const handleErrors = (error, req, res) => {
     const message = statusCode === 500 ? 'На сервере произошла ошибка' : error.message;
     res.status(statusCode).json({ message });
   }
+
+  next();
 };
 
 module.exports = handleErrors;

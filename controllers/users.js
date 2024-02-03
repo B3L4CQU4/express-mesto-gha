@@ -3,43 +3,41 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 const User = require('../models/users');
-const handleErrors = require('../middlewares/handleErrors');
-const validationSchemas = require('../validation/validationSchemas');
+
+const NotFound = require('../errors/notFound');
+const AuthError = require('../errors/authError');
 
 const OK_CODE = 200;
 const CREATED_CODE = 201;
 
 const { SECRET_KEY } = process.env;
 
-const getUsers = async (req, res) => {
+const getUsers = async (req, res, next) => {
   try {
     const users = await User.find();
     res.status(OK_CODE).json(users);
   } catch (error) {
-    handleErrors(error, req, res);
+    next(error);
   }
 };
 
-const getUserById = async (req, res) => {
+const getUserById = async (req, res, next) => {
   const { userId } = req.params;
 
   try {
-    await validationSchemas.userIdSchema.validateAsync(userId);
-
     const user = await User.findById(userId);
 
     if (!user) {
-      const error = { message: 'User not found', statusCode: 404 };
-      handleErrors(error, req, res);
+      throw new NotFound('User not found');
     } else {
       res.status(OK_CODE).json(user);
     }
   } catch (error) {
-    handleErrors(error, req, res);
+    next(error);
   }
 };
 
-const getUserInfo = async (req, res) => {
+const getUserInfo = async (req, res, next) => {
   try {
     // Извлекаем токен из куки
     const token = req.cookies.jwt;
@@ -54,11 +52,11 @@ const getUserInfo = async (req, res) => {
 
     res.status(OK_CODE).json(user.toObject());
   } catch (error) {
-    handleErrors(error, req, res);
+    next(error);
   }
 };
 
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
   const {
     name,
     about,
@@ -68,7 +66,7 @@ const createUser = async (req, res) => {
   } = req.body;
 
   try {
-    const validatedData = await validationSchemas.createUserSchema.validateAsync({
+    const newUser = await User.create({
       name,
       about,
       avatar,
@@ -76,86 +74,70 @@ const createUser = async (req, res) => {
       password,
     });
 
-    const newUser = await User.create(validatedData);
     newUser.password = undefined;
     res.status(CREATED_CODE).json(newUser);
   } catch (error) {
-    handleErrors(error, req, res);
+    next(error);
   }
 };
 
-const updateProfile = async (req, res) => {
+const updateProfile = async (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
 
   try {
-    // Валидация данных запроса
-    const validatedData = await validationSchemas.updateProfileSchema.validateAsync({
-      name,
-      about,
-    });
-
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      validatedData,
+      { name, about },
       { new: true, runValidators: true },
     );
 
     if (!updatedUser) {
-      const error = { message: 'User not found', statusCode: 404 };
-      handleErrors(error, req, res);
+      throw new NotFound('User not found');
     } else {
       res.status(OK_CODE).json(updatedUser);
     }
   } catch (error) {
-    handleErrors(error, req, res);
+    next(error);
   }
 };
 
-const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res, next) => {
   const { avatar } = req.body;
   const userId = req.user._id;
 
   try {
-    // Валидация данных запроса
-    const validatedData = await validationSchemas.updateAvatarSchema.validateAsync({ avatar });
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { avatar: validatedData.avatar },
+      { avatar },
       { new: true, runValidators: true },
     );
 
     if (!updatedUser) {
-      const error = { message: 'User not found', statusCode: 404 };
-      handleErrors(error, req, res);
+      throw new NotFound('User not found');
     } else {
       res.status(OK_CODE).json(updatedUser);
     }
   } catch (error) {
-    handleErrors(error, req, res);
+    next(error);
   }
 };
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   try {
-    // Валидация данных логина
-    await validationSchemas.loginSchema.validateAsync({ email, password });
-
     const user = await User.findOne({ email }).select('+password');
 
     if (user && await bcrypt.compare(password, user.password)) {
-      // Включаем _id в токен
       const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '1w' });
       res.cookie('jwt', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
       res.status(OK_CODE).json({ message: 'Login successful', _id: user._id });
     } else {
-      const error = { message: 'Invalid email or password', statusCode: 401 };
-      handleErrors(error, req, res);
+      throw new AuthError('Invalid email or password');
     }
   } catch (error) {
-    handleErrors(error, req, res);
+    next(error);
   }
 };
 
