@@ -2,7 +2,7 @@ const handleErrors = (error, req, res) => {
   if (error.isJoi) {
     // Ошибка валидации Joi
     const statusCode = 400;
-    const message = error.details.map((detail) => detail.message).join('; ');
+    const { message } = error.message;
     res.status(statusCode).json({ message });
   } else if (error.code === 11000) {
     const statusCode = 409;// Обработка ошибки бд
