@@ -7,7 +7,7 @@ const authMiddleware = (req, res, next) => {
   const token = req.cookies.jwt;
 
   if (!token) {
-    const error = { message: 'Unauthorized: Token missing', statusCode: 403 };
+    const error = { message: 'Unauthorized: Token missing', statusCode: 401 };
     handleErrors(error, req, res);
   } else {
     try {
