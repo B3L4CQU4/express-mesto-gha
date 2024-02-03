@@ -6,6 +6,7 @@ const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const authMiddleware = require('./middlewares/auth');
 const handleErrors = require('./middlewares/handleErrors');
+const handleJsonParseError = require('./middlewares/handleJsonParseError');
 
 const { PORT = 3000 } = process.env;
 
@@ -27,8 +28,12 @@ app.use((req, res, next) => {
 
 app.use(userRouter);
 app.use(cardRouter);
+app.use(handleJsonParseError);
 
-app.all('*', handleErrors('Not found'));
+app.all('*', (req, res) => {
+  const error = { message: 'Not Found', statusCode: 404 };
+  handleErrors(error, req, res);
+});
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 

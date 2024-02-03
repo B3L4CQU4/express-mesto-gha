@@ -1,28 +1,18 @@
-const INVALID_DATA_CODE = 400;
-const UNAUTHORIZED_CODE = 401;
-const FORBIDDEN_CODE = 403;
-const NOT_FOUND_CODE = 404;
-const CONFLICT_CODE = 404;
-const DEFAULT_ERROR_CODE = 500;
-
-const showError = (statusCode, message, res) => {
-  res.status(statusCode).json({ message });
-};
-
-const handleErrors = (message) => (req, res) => {
-  const errorMappings = [
-    { keyword: 'found', statusCode: NOT_FOUND_CODE },
-    { keyword: 'Unauthorized', statusCode: UNAUTHORIZED_CODE },
-    { keyword: 'Invalid', statusCode: INVALID_DATA_CODE },
-    { keyword: 'Permission', statusCode: FORBIDDEN_CODE },
-    { keyword: 'email', statusCode: CONFLICT_CODE },
-    { keyword: 'На сервере произошла ошибка', statusCode: DEFAULT_ERROR_CODE },
-  ];
-
-  const errorMapping = errorMappings.find((mapping) => message.includes(mapping.keyword));
-
-  if (errorMapping) {
-    showError(errorMapping.statusCode, message, res);
+const handleErrors = (error, req, res, next) => {
+  if (error.isJoi) {
+    // Ошибка валидации Joi
+    const statusCode = 400;
+    const message = error.details.map((detail) => detail.message).join('; ');
+    res.status(statusCode).send({ message });
+  } else if (error.code === 11000) {
+    const statusCode = 409;// Обработка ошибки бд
+    const { message } = error;
+    res.status(statusCode).send({ message });
+  } else {
+    // Другие ошибки
+    const statusCode = error.statusCode || 500;
+    const message = statusCode === 500 ? 'На сервере произошла ошибка' : error.message;
+    res.status(statusCode).send({ message });
   }
 };
 

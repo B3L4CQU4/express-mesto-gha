@@ -7,7 +7,8 @@ const authMiddleware = (req, res, next) => {
   const token = req.cookies.jwt;
 
   if (!token) {
-    handleErrors('Unauthorized: Token missing')(req, res);
+    const error = { message: 'Unauthorized: Token missing', statusCode: 403 };
+    handleErrors(error, req, res);
   } else {
     try {
       const payload = jwt.verify(token, SECRET_KEY);
@@ -16,8 +17,7 @@ const authMiddleware = (req, res, next) => {
       // Вызвать следующий обработчик
       next();
     } catch (error) {
-      // Вернуть ошибку 401 в случае неверного токена
-      handleErrors('Unauthorized: Wrong token')(req, res);
+      handleErrors(error, req, res);
     }
   }
 };
