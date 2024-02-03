@@ -24,6 +24,8 @@ const getUserById = async (req, res) => {
   const { userId } = req.params;
 
   try {
+    await validationSchemas.userIdSchema.validateAsync(userId);
+
     const user = await User.findById(userId);
 
     if (!user) {
@@ -37,9 +39,23 @@ const getUserById = async (req, res) => {
   }
 };
 
-const getUserInfo = (req, res) => {
-  const userInfo = req.user;
-  res.status(OK_CODE).json(userInfo);
+const getUserInfo = async (req, res) => {
+  try {
+    // Извлекаем токен из куки
+    const token = req.cookies.jwt;
+
+    // Декодируем токен, чтобы получить информацию, включенную при подписи
+    const decodedToken = jwt.verify(token, SECRET_KEY);
+
+    // Извлекаем _id из декодированного токена
+    const userId = decodedToken._id;
+
+    const user = await User.findById(userId);
+
+    res.status(OK_CODE).json(user.toObject());
+  } catch (error) {
+    handleErrors(error, req, res);
+  }
 };
 
 const createUser = async (req, res) => {
@@ -61,6 +77,7 @@ const createUser = async (req, res) => {
     });
 
     const newUser = await User.create(validatedData);
+    newUser.password = undefined;
     res.status(CREATED_CODE).json(newUser);
   } catch (error) {
     handleErrors(error, req, res);
@@ -129,11 +146,12 @@ const login = async (req, res) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (user && await bcrypt.compare(password, user.password)) {
+      // Включаем _id в токен
       const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '1w' });
       res.cookie('jwt', token, { httpOnly: true, maxAge: 7 * 24 * 60 * 60 * 1000 });
-      res.status(OK_CODE).json({ message: 'Login successful' });
+      res.status(OK_CODE).json({ message: 'Login successful', _id: user._id });
     } else {
-      const error = { message: 'Invalid email or password', statusCode: 400 };
+      const error = { message: 'Invalid email or password', statusCode: 401 };
       handleErrors(error, req, res);
     }
   } catch (error) {

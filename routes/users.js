@@ -6,6 +6,8 @@ const userController = require('../controllers/users');
 // Роут для получения всех пользователей
 router.get('/users', userController.getUsers);
 
+router.get('/users/me', userController.getUserInfo);
+
 // Роут для получения пользователя по _id
 router.get('/users/:userId', userController.getUserById);
 
@@ -17,7 +19,5 @@ router.patch('/users/me', userController.updateProfile);
 
 // Роут для обновления аватара пользователя
 router.patch('/users/me/avatar', userController.updateAvatar);
-
-router.get('/users/me', userController.getUserInfo);
 
 module.exports = router;

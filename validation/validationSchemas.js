@@ -1,9 +1,9 @@
 const Joi = require('joi');
 
 const createUserSchema = Joi.object({
-  name: Joi.string().min(2).max(30).required(),
-  about: Joi.string().min(2).max(30).required(),
-  avatar: Joi.string().required(),
+  name: Joi.string().min(2).max(30),
+  about: Joi.string().min(2).max(30),
+  avatar: Joi.string().uri(),
   email: Joi.string().email().required(),
   password: Joi.string().required(),
 });
@@ -22,6 +22,10 @@ const loginSchema = Joi.object({
   password: Joi.string().required(),
 });
 
+const userIdSchema = Joi.string().length(24).hex();
+
+const cardIdSchema = Joi.string().length(24).hex();
+
 const createCardSchema = Joi.object({
   name: Joi.string().min(2).max(30).required(),
   link: Joi.string().uri().required(),
@@ -33,4 +37,6 @@ module.exports = {
   updateProfileSchema,
   loginSchema,
   createCardSchema,
+  userIdSchema,
+  cardIdSchema,
 };
