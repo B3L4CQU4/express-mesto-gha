@@ -3,13 +3,13 @@ const Joi = require('joi');
 const createUserSchema = Joi.object({
   name: Joi.string().min(2).max(30),
   about: Joi.string().min(2).max(30),
-  avatar: Joi.string().uri(),
+  avatar: Joi.string().uri({ allowRelative: false }).pattern(/^[a-zA-Z0-9-_:/?#&=.,;+]*$/).required(),
   email: Joi.string().email().required(),
   password: Joi.string().required(),
 });
 
 const updateAvatarSchema = Joi.object({
-  avatar: Joi.string().uri().required(),
+  avatar: Joi.string().uri({ allowRelative: false }).pattern(/^[a-zA-Z0-9-_:/?#&=.,;+]*$/).required(),
 });
 
 const updateProfileSchema = Joi.object({
