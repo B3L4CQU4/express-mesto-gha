@@ -1,11 +1,9 @@
 // controllers/cards.js
 const Card = require('../models/cards');
+const handleErrors = require('../middlewares/handleErrors');
 
 const OK_CODE = 200;
 const CREATED_CODE = 201;
-const INVALID_DATA_CODE = 400;
-const NOT_FOUND_CODE = 404;
-const DEFAULT_ERROR_CODE = 500;
 
 // GET /cards
 const getCards = async (req, res) => {
@@ -13,7 +11,7 @@ const getCards = async (req, res) => {
     const cards = await Card.find();
     res.status(OK_CODE).json(cards);
   } catch (error) {
-    res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
+    handleErrors('На сервере произошла ошибка')(req, res);
   }
 };
 
@@ -26,27 +24,31 @@ const createCard = async (req, res) => {
     const newCard = await Card.create({ name, link, owner });
     res.status(CREATED_CODE).json(newCard);
   } catch (error) {
-    res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
+    handleErrors('Invalid input')(req, res);
   }
 };
 
 // DELETE /cards/:cardId
 const deleteCardById = async (req, res) => {
   const { cardId } = req.params;
+  const userId = req.user._id;
 
   try {
     const deletedCard = await Card.findByIdAndDelete({ _id: cardId });
+    const card = await Card.findById(cardId);
 
     if (!deletedCard) {
-      res.status(NOT_FOUND_CODE).json({ message: 'Card not found' });
+      handleErrors('Card not found')(req, res);
+    } else if (card.owner.toString() !== userId) {
+      handleErrors('Permission denied: You cannot delete this card')(req, res);
     } else {
       res.status(OK_CODE).json(deletedCard);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
+      handleErrors('Invalid input')(req, res);
     } else {
-      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
+      handleErrors('На сервере произошла ошибка')(req, res);
     }
   }
 };
@@ -64,15 +66,15 @@ const likeCard = async (req, res) => {
     );
 
     if (!updatedCard) {
-      res.status(NOT_FOUND_CODE).json({ message: 'Card not found' });
+      handleErrors('Card not found')(req, res);
     } else {
       res.status(OK_CODE).json(updatedCard);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
+      handleErrors('Invalid input')(req, res);
     } else {
-      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
+      handleErrors('На сервере произошла ошибка')(req, res);
     }
   }
 };
@@ -90,15 +92,15 @@ const dislikeCard = async (req, res) => {
     );
 
     if (!updatedCard) {
-      res.status(NOT_FOUND_CODE).json({ message: 'Card not found' });
+      handleErrors('Card not found')(req, res);
     } else {
       res.status(OK_CODE).json(updatedCard);
     }
   } catch (error) {
     if (error.name === 'CastError') {
-      res.status(INVALID_DATA_CODE).json({ message: 'Invalid input' });
+      handleErrors('Invalid input')(req, res);
     } else {
-      res.status(DEFAULT_ERROR_CODE).json({ message: 'На сервере произошла ошибка' });
+      handleErrors('На сервере произошла ошибка')(req, res);
     }
   }
 };

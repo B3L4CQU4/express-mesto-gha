@@ -18,4 +18,6 @@ router.patch('/users/me', userController.updateProfile);
 // Роут для обновления аватара пользователя
 router.patch('/users/me/avatar', userController.updateAvatar);
 
+router.get('/users/me', userController.getUserInfo);
+
 module.exports = router;
