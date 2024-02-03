@@ -39,7 +39,7 @@ const deleteCardById = async (req, res, next) => {
   const { cardId } = req.params;
 
   try {
-    // Поиск и удаление карточки по ID
+    // Поиск карточки по ID
     const card = await Card.findById(cardId);
 
     // Извлекаем токен из куки
@@ -58,7 +58,7 @@ const deleteCardById = async (req, res, next) => {
       // Проверка прав доступа
       throw new NotOwner('Permission denied: You cannot delete this card');
     } else {
-      const deletedCard = Card.findByIdAndDelete(cardId);
+      const deletedCard = await Card.findByIdAndDelete(cardId);
       res.status(OK_CODE).json(deletedCard);
     }
   } catch (error) {

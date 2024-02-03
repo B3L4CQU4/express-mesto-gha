@@ -10,6 +10,10 @@ const authMiddleware = require('./middlewares/auth');
 const handleErrors = require('./middlewares/handleErrors');
 const handleJsonParseError = require('./middlewares/handleJsonParseError');
 const NotFound = require('./errors/notFound');
+const {
+  validateCreateUser,
+  validateLogin,
+} = require('./validation/validation');
 
 const { PORT = 3000 } = process.env;
 
@@ -25,8 +29,8 @@ mongoose.connect(
   },
 );
 
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', validateLogin, login);
+app.post('/signup', validateCreateUser, createUser);
 
 app.use((req, res, next) => {
   if (req.url === '/signin' || req.url === '/signup') {
